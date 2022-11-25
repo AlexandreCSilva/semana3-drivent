@@ -54,7 +54,7 @@ describe("GET /tickets/types", () => {
     it("should respond with status 200 and with existing TicketTypes data", async () => {
       const token = await generateValidToken();
 
-      const ticketType = await createTicketType();
+      const ticketType = await createTicketType(true);
 
       const response = await server.get("/tickets/types").set("Authorization", `Bearer ${token}`);
 
@@ -121,7 +121,7 @@ describe("GET /tickets", () => {
       const user = await createUser();
       const token = await generateValidToken(user);
       const enrollment = await createEnrollmentWithAddress(user);
-      const ticketType = await createTicketType();
+      const ticketType = await createTicketType(true);
       const ticket = await createTicket(enrollment.id, ticketType.id, TicketStatus.RESERVED);
 
       const response = await server.get("/tickets").set("Authorization", `Bearer ${token}`);
@@ -177,7 +177,7 @@ describe("POST /tickets", () => {
       const user = await createUser();
       const token = await generateValidToken(user);
       await createEnrollmentWithAddress(user);
-      await createTicketType();
+      await createTicketType(true);
 
       const response = await server.post("/tickets").set("Authorization", `Bearer ${token}`).send({});
 
@@ -187,7 +187,7 @@ describe("POST /tickets", () => {
     it("should respond with status 404 when user doesnt have enrollment yet", async () => {
       const user = await createUser();
       const token = await generateValidToken(user);
-      const ticketType = await createTicketType();
+      const ticketType = await createTicketType(true);
 
       const response = await server
         .post("/tickets")
@@ -201,7 +201,7 @@ describe("POST /tickets", () => {
       const user = await createUser();
       const token = await generateValidToken(user);
       const enrollment = await createEnrollmentWithAddress(user);
-      const ticketType = await createTicketType();
+      const ticketType = await createTicketType(true);
 
       const response = await server
         .post("/tickets")
@@ -232,7 +232,7 @@ describe("POST /tickets", () => {
       const user = await createUser();
       const token = await generateValidToken(user);
       await createEnrollmentWithAddress(user);
-      const ticketType = await createTicketType();
+      const ticketType = await createTicketType(true);
 
       const beforeCount = await prisma.ticket.count();
 
