@@ -1,4 +1,4 @@
-import { notFoundError, unauthorizedError } from "@/errors";
+import { unauthorizedError } from "@/errors";
 import enrollmentRepository from "@/repositories/enrollment-repository";
 import hotelRepository from "@/repositories/hotel-repository";
 import ticketRepository from "@/repositories/ticket-repository";
@@ -7,26 +7,30 @@ async function getHotels(userId: number) {
   const enrollment = await enrollmentRepository.findWithAddressByUserId(userId);
 
   if (!enrollment) {
-    throw notFoundError();
+    throw unauthorizedError();
   }
-
+  
   const ticket = await ticketRepository.findTicketByEnrollmentId(enrollment.id);
     
-  if (!ticket) {
-    throw notFoundError();
-  } else if (ticket.status === "RESERVED" || !ticket.TicketType.includesHotel) {
+  if (!ticket || ticket.status === "RESERVED" || ticket.TicketType.includesHotel === false || ticket.TicketType.isRemote === true) {
     throw unauthorizedError();
   } 
-    
+
   return await hotelRepository.findHotels();
 }
 
-async function getHotelRooms(hotelId: number) {
-  const hotel = await hotelRepository.findHotelById(hotelId);
+async function getHotelRooms(hotelId: number, userId: number) {
+  const enrollment = await enrollmentRepository.findWithAddressByUserId(userId);
 
-  if (!hotel) {
-    throw notFoundError();
+  if (!enrollment) {
+    throw unauthorizedError();
   }
+
+  const ticket = await ticketRepository.findTicketByEnrollmentId(enrollment.id);
+  
+  if (!ticket || ticket.status === "RESERVED" || ticket.TicketType.includesHotel === false || ticket.TicketType.isRemote === true) {
+    throw unauthorizedError();
+  } 
 
   return await hotelRepository.findRoomsByHotelId(hotelId);
 }

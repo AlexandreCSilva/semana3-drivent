@@ -20,21 +20,22 @@ export async function getHotels(req: AuthenticatedRequest, res: Response) {
 }
 
 export async function getHotelsRoomsById(req: AuthenticatedRequest, res: Response) {
+  const { userId } = req;
   const hotelId = parseFloat(req.params.hotelId);
 
   if (isNaN(hotelId) || hotelId <= 0) {
-    return res.sendStatus(httpStatus.BAD_REQUEST);
+    return res.sendStatus(httpStatus.UNAUTHORIZED);
   }
   
   try {
-    const result = await hotelService.getHotelRooms(hotelId);
+    const result = await hotelService.getHotelRooms(hotelId, userId);
 
     return res.status(httpStatus.OK).send(result);
   } catch (error) {
     if (error.name === "UnauthorizedError") {
       return res.sendStatus(httpStatus.UNAUTHORIZED);
     }
-
+    
     return res.status(httpStatus.NOT_FOUND).send({});
   }
 }
